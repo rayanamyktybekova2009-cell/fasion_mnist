@@ -44,11 +44,12 @@ transform = transforms.Compose([
     transforms.ToTensor()
 ])
 
+
 @st.cache_resource
 def load_model():
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device("cpu")
     model = CheckImage()
-    model.load_state_dict(torch.load('model.pth', map_location = device))
+    model.load_state_dict(torch.load("model.pth", map_location=device))
     model.to(device)
     model.eval()
     return model, device
@@ -64,10 +65,10 @@ if uploaded_file is not None:
     image = Image.open(io.BytesIO(uploaded_file.read()))
     st.image(image, caption="Загруженное изображение")
 
-    img_tensor = transform(image).unsqueeze(0)
+    img_tensor = transform(image).unsqueeze(0).to(device)
+
     with torch.no_grad():
         output = model(img_tensor)
         pred = output.argmax(dim=1).item()
-
 
     st.write("Результат:", CLASS_NAMES[pred])
